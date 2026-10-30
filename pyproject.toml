@@ -1,0 +1,22 @@
+[project]
+name = "flacual"
+version = "1.0.0"
+description = "Simple TUI for metaflac"
+readme = "README.md"
+authors = [
+    { name = "Joseph Volosin", email = "josephvolosin@gmail.com" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2.14.1",
+    "pydantic-settings>=2.16.2",
+    "textual>=8.2.8",
+    "textual-dev>=1.8.0",
+]
+
+[project.scripts]
+flacual = "flacual:main"
+
+[build-system]
+requires = ["uv_build>=0.13.6,<0.14.0"]
+build-backend = "uv_build"
