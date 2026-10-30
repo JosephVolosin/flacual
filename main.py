@@ -7,4 +7,3 @@ if __name__ == "__main__":
         print("'metaflac' was not found. Install it!")
     app = FlacualApp(settings.library)
     app.run()
-    

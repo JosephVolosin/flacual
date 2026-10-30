@@ -1,17 +1,16 @@
-from datetime import datetime
 from pathlib import Path
 
-from textual import on, log
+from textual import log, on
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal, Vertical, VerticalScroll
-from textual.screen import ModalScreen
-from textual.widgets import DirectoryTree, Footer, Header, DataTable, Input, Label
 from textual.message import Message
+from textual.screen import ModalScreen
+from textual.widgets import DataTable, DirectoryTree, Footer, Header, Input, Label
 
 from src.flacual.metaflac import Song
 
-class EditTag(ModalScreen):
 
+class EditTag(ModalScreen):
     BINDINGS = [("escape", "cancel", "Cancel")]
 
     DEFAULT_CSS = """
@@ -35,14 +34,14 @@ class EditTag(ModalScreen):
             yield Input(self.value)
 
     def on_input_submitted(self, event: Input.Submitted):
-        self.dismiss({ "tag": self.label, "value": event.value})
-    
+        self.dismiss({"tag": self.label, "value": event.value})
+
     def action_cancel(self):
         self.dismiss(None)
 
-class FLACTree(DirectoryTree):
 
-    BINDINGS=[("1", "artist_for_directory", "Set Artist For Directory")]
+class FLACTree(DirectoryTree):
+    BINDINGS = [("1", "artist_for_directory", "Set Artist For Directory")]
 
     class SetArtistForDirectoryRequested(Message):
         def __init__(self, directory: Path):
@@ -58,11 +57,9 @@ class FLACTree(DirectoryTree):
 
     def filter_paths(self, paths: list[Path]) -> list[Path]:
         results: list[Path] = []
-        
+
         for p in paths:
-            if p.is_dir():
-                results.append(p)
-            elif p.suffix.lower() == ".flac":
+            if p.is_dir() or p.suffix.lower() == ".flac":
                 results.append(p)
 
         return results
@@ -72,6 +69,7 @@ class FLACTree(DirectoryTree):
 
         if directory:
             self.post_message(self.SetArtistForDirectoryRequested(directory))
+
 
 class FlacualApp(App):
     CSS = """
@@ -106,10 +104,7 @@ class FlacualApp(App):
     }
     """
 
-    BINDINGS = [
-        ("q", "quit", "Quit"),
-        ("d", "delete_item", "Delete Tag")
-    ]
+    BINDINGS = [("q", "quit", "Quit"), ("d", "delete_item", "Delete Tag")]
 
     current_file: str | None = None
     curernt_file_obj: Song | None = None
@@ -125,7 +120,7 @@ class FlacualApp(App):
         if self.current_file_obj:
             tags = self.current_file_obj.list_tags()
             if tags:
-                for tag_key, tag_value in tags.items(): 
+                for tag_key, tag_value in tags.items():
                     table_widget.add_row(tag_key, tag_value, key=tag_key)
 
     def compose(self) -> ComposeResult:
@@ -158,7 +153,9 @@ class FlacualApp(App):
         self.draw_song_on_table()
 
     @on(FLACTree.SetArtistForDirectoryRequested)
-    def handle_set_artist_for_directory_requested(self, event: FLACTree.SetArtistForDirectoryRequested):
+    def handle_set_artist_for_directory_requested(
+        self, event: FLACTree.SetArtistForDirectoryRequested
+    ):
         directory = event.directory
 
         def handle_mass_artist_update(data: dict):
@@ -172,7 +169,7 @@ class FlacualApp(App):
                         log("Tag successfully updated!")
                     else:
                         log("Tag was unable to be updated.")
-        
+
         log("Setting artist for the whole directory: " + str(directory))
         self.push_screen(EditTag("ARTIST", ""), handle_mass_artist_update)
 
